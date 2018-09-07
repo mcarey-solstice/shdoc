@@ -25,6 +25,9 @@ BEGIN {
     styles["github", "arg@", "from"] = "^\\$@ (\\S+)"
     styles["github", "arg@", "to"] = "**...** (\\1):"
 
+    styles["github", "optN", "from"] = "^(\\$[0-9a-zA-Z\\-]) (\\S+)"
+    styles["github", "optN", "to"] = "**\\1** (\\2):"
+
     styles["github", "li", "from"] = ".*"
     styles["github", "li", "to"] = "* &"
 
@@ -101,6 +104,21 @@ in_example {
 
     $0 = render("argN", $0)
     $0 = render("arg@", $0)
+
+    docblock = docblock render("li", $0) "\n"
+}
+
+/^[[:space:]]*# @option/ {
+    if (!has_opts) {
+        has_opts = 1
+
+        docblock = docblock "\n" render("h2", "Options") "\n\n"
+    }
+
+    sub(/^[[:space:]]*# @option /, "")
+
+    $0 = render("optN", $0)
+    $0 = render("opt@", $0)
 
     docblock = docblock render("li", $0) "\n"
 }
